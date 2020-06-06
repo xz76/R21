@@ -7,16 +7,18 @@ This repository contains R functions for nonparametric analysis of (continuous-t
 
 ## Main Functions
 
-The main functions are `wiaj()` and `wiaj_test()`. Both functions are beta version.
+The main functions are `patp()` and `patp_test()`. Both functions are beta version.
 
 ### Dependencies
 The functions require the R packages `mstate` and `Rfast` to be installed and loaded.
 
 ### Input data
+The input data need to be a dataframe in `mstate` format. For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07). 
 
-### Description of `wiaj()`
+### Description of `patp()`
 
-### Description of `wiaj_test()`
+
+### Description of `patp_test()`
 
 
 ## Examples
