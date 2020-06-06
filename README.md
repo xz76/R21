@@ -17,6 +17,7 @@ The input data need to be a dataframe in the long format required by the `mstate
 
 * `from`
 * `to`
+* `trans`
 * `Tstart`
 * `Tstop`
 * `status`
