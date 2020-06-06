@@ -10,10 +10,10 @@ This repository contains R functions for nonparametric analysis of (continuous-t
 The main functions are `patp()` and `patp_test()`. Both functions are beta version.
 
 ### Dependencies
-The functions require the R packages `mstate` and `Rfast` to be installed and loaded.
+The functions require the R packages `mstate` and `Rfast` to be installed.
 
 ### Input data
-The input data need to be a dataframe in `mstate` format. For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07). 
+The input data need to be a dataframe in long format. The dataframe structure needs to be as required in the `mstate` package. For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07). 
 
 ### Description of `patp()`
 
