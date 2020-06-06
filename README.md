@@ -29,7 +29,7 @@ For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07).
 
 ### Description of `patp()`
 
-The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities $y=x$
+The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities of the form Pr(X(t) = j| X(s)=h).
 
 
 * `data`
