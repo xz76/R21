@@ -13,7 +13,7 @@ The main functions are `patp()` and `patp_test()`. Both functions are beta versi
 The functions require the R packages `mstate` and `Rfast` to be installed.
 
 ### Input data
-The input data need to be a dataframe in long format. The dataframe structure needs to be as required in the `mstate` package. For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07). 
+The input data need to be a dataframe in the long format required by the `mstate` package. For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07). 
 
 ### Description of `patp()`
 
