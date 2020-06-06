@@ -29,15 +29,17 @@ For more details see <https://www.jstatsoft.org/article/view/v038i07>.
 The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities. These probabilities have the form Pr(X(t) = j| X(s) = h), where X(t) is the process of interest at time t, and h,j=1,...,k are possible states of the process X(t). The function has the following arguments:
 
 
-* `data`  a dataframe in the long format required by the mstate package
-* `tmat`
-```{r tmat}
-
-R> tmat <- transMat(x = list(c(2, 3), c(3)), names = c("health", "illness", "death"))
-R> tmat
-        to
-from     Tx Rec AE Rec+AE Rel Death
-Tx NA12 NA3 4 RecNANANA 56 7 AE NANANA 8 9 10 Rec+AE NA NA NA NA 11 12 Rel NANANA NANA NA Death NA NA NA NA NA NA
+* `data` a data.frame in the long format required by the mstate package
+* `tmat` a matrix of possible transitions between states of the process. This can be obtained via the `mstate` function `transMat()`. For the illness-death model without recovery 
+```
+> tmat <- transMat(x = list(c(2, 3), c(3), c()), 
++                  names = c("Health", "Illness", "Death"))
+> tmat
+         to
+from      Health Illness Death
+  Health      NA       1     2
+  Illness     NA      NA     3
+  Death       NA      NA    NA
 ```
 
 * `cid`
