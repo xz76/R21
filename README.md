@@ -22,15 +22,24 @@ The input data need to be a dataframe in the long format required by the `mstate
 * `Tstop`
 * `status`
 
-For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07). 
+For more details see <https://www.jstatsoft.org/article/view/v038i07)>. 
 
 ### Description of `patp()`
 
-The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities. These probabilities have the form Pr(X(t) = j| X(s)=h), where X(t) is the process of interest at time t, and h,j=1,...,k are possible states of the process X(t). The function has the following arguments:
+The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities. These probabilities have the form Pr(X(t) = j| X(s) = h), where X(t) is the process of interest at time t, and h,j=1,...,k are possible states of the process X(t). The function has the following arguments:
 
 
 * `data`  a dataframe in the long format required by the mstate package
 * `tmat`
+```{r tmat}
+
+R> tmat <- transMat(x = list(c(2, 3), c(3)), names = c("health", "illness", "death"))
+R> tmat
+        to
+from     Tx Rec AE Rec+AE Rel Death
+Tx NA12 NA3 4 RecNANANA 56 7 AE NANANA 8 9 10 Rec+AE NA NA NA NA 11 12 Rel NANANA NANA NA Death NA NA NA NA NA NA
+```
+
 * `cid`
 * `id`
 * `h` 
