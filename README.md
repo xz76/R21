@@ -7,7 +7,7 @@ This repository contains R functions for nonparametric analysis of (continuous-t
 
 ## Main Functions
 
-The main functions are `wiaj()` and `wiaj_test()`. Both functions are currently in Beta version.
+The main functions are `wiaj()` and `wiaj_test()`. Both functions are beta versions.
 
 ### Dependencies
 The functions utilize the R packages `mstate` and `Rfast`.
