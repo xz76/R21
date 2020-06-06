@@ -26,10 +26,10 @@ For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07).
 
 ### Description of `patp()`
 
-The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities. These probabilities have the form Pr(X(t) = j| X(s)=h), where X(t) is the process of interest at time t, and h,j=1,...,k are possible states of the process X(t).
+The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities. These probabilities have the form Pr(X(t) = j| X(s)=h), where X(t) is the process of interest at time t, and h,j=1,...,k are possible states of the process X(t). The function has the following arguments:
 
 
-* `data`
+* `data`  a dataframe in the long format required by the mstate package
 * `tmat`
 * `cid`
 * `id`
