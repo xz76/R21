@@ -22,7 +22,7 @@ The input data need to be a dataframe in the long format required by the `mstate
 * `Tstop`
 * `status`
 
-For more details see <https://www.jstatsoft.org/article/view/v038i07)>. 
+For more details see <https://www.jstatsoft.org/article/view/v038i07>. 
 
 ### Description of `patp()`
 
