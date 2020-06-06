@@ -44,6 +44,18 @@ For more details see [mstate](https://www.jstatsoft.org/article/view/v038i07).
 
 ### Description of `patp_test()`
 
+* `data`
+* `tmat`
+* `cid`
+* `id`
+* `group`
+* `h` 
+* `j`
+* `s`
+* `weighted`
+* `LMAJ`
+* `B`
+
 
 ## Examples
 
