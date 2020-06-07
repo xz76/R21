@@ -17,8 +17,8 @@ The input data need to be a data frame in the long format required by the `mstat
 
 * `Tstart`: starting time of the interval in the record.
 * `Tstop`: ending time of the interval in record.
-* `from`: State of the process at `Tstart`. The possible values are 1,...,k. 
-* `to`: State of the process at `Tstop`. The possible values are 1,...,k.
+* `from`: state of the process at `Tstart`. The possible values are 1,...,k. 
+* `to`: state of the process at `Tstop`. The possible values are 1,...,k.
 * `trans`: an integer that uniquely identifies the transition.
 * `status`: Indicator variable. If `status=1`, the correspoding transition has been observed.
 
