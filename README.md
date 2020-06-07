@@ -15,22 +15,22 @@ The functions require the R packages `mstate` and `Rfast` to be installed.
 ### Input data
 The input data need to be a dataframe in the long format required by the `mstate` package. The dataframe should contain the variables
 
-* `from`
-* `to`
-* `trans`
-* `Tstart`
-* `Tstop`
-* `status`
+* `from`:
+* `to`:
+* `trans`:
+* `Tstart`:
+* `Tstop`:
+* `status`:
 
 For more details see <https://www.jstatsoft.org/article/view/v038i07>. 
 
-### Description of `patp()`
+### Function `patp()`
 
 The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities. These probabilities have the form Pr(X(t) = j| X(s) = h), where X(t) is the process of interest at time t, and h,j=1,...,k are possible states of the process X(t). The function has the following arguments:
 
 
-* `data` a data.frame in the long format required by the mstate package
-* `tmat` a matrix of possible transitions between states of the process. This can be obtained via the `mstate` function `transMat()`. For the illness-death model without recovery 
+* `data`: a data.frame in the long format required by the mstate package
+* `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`. For the illness-death model without recovery this can be achieved as follows
 ```
 > tmat <- transMat(x = list(c(2, 3), c(3), c()), 
 +                  names = c("Health", "Illness", "Death"))
@@ -42,15 +42,15 @@ from      Health Illness Death
   Death       NA      NA    NA
 ```
 
-* `cid`
-* `id`
-* `h` 
-* `j`
-* `s`
-* `weighted`
-* `LMAJ`
-* `B`
-* `cband`
+* `cid`:
+* `id`:
+* `h`:
+* `j`:
+* `s`:
+* `weighted`:
+* `LMAJ`:
+* `B`:
+* `cband`:
 
 
 ### Description of `patp_test()`
