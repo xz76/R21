@@ -61,7 +61,7 @@ The function `patp_test()` calculates the p-value for the comparison of the popu
 
 ## Example
 
-The artificial dataset `example_data.csv` (included in this repository) contain clustered observations from an illness-death process without recovery. The matrix `tmat` of possible transitions for this process can be created as follows
+The artificial dataset `example_data.csv` (included in this repository) contains clustered observations from an illness-death process without recovery. The matrix `tmat` of possible transitions for this process can be created as follows
 ```
 > tmat <- transMat(x = list(c(2, 3), c(3), c()), 
 +                  names = c("Health", "Illness", "Death"))
