@@ -44,6 +44,8 @@ The function `patp()` calculates the working independence Aalen-Johansen estimat
 
 ### Function `patp_test()`
 
+The function `patp_test()` calculates the p-value for the comparison of the population-averaged transition probability Pr(X(t) = j| X(s) = h) between two groups, using a two-sample Kolmogorov-Smirnov-type test. The function performes has the following arguments:
+
 * `data`: a data.frame in the long format required by the `mstate` package.
 * `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`.
 * `cid`: variable name that identifies the clusters.
