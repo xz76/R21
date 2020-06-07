@@ -103,7 +103,7 @@ Data:
 5  3    1  2     1      0 2.631259 2.631259      0   1     1
 6  3    1  3     2      0 2.631259 2.631259      0   1     1
 ```
-Estimating the population-averaged transition probability P(X(t) = 2| X(0) = 1) and calculating standard errors and 95% condidence intervals can be achieved as follows
+Estimating the population-averaged transition probability P(X(t) = 2| X(0) = 1) and calculating standard errors and 95% condidence intervals based on 100 cluster bootstrap replications can be achieved as follows
 ```
 P12 <- patp(data=data, tmat=tmat, cid="cid", id="id", h=1, j=2, s=0, B=100)
 ```
