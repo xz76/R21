@@ -88,7 +88,7 @@ The dataset can be obtained as follows
 5  5   1 2.1919740     0 2.1919740     1     1
 6  6   1 1.5983068     1 2.7530976     0     1
 ```
-The variables `cid` and `id` correspond to the cluster identification number and the individual identification number, respectively. The variable `group` is the binary group indicator (to be used for the illustration of the two-sample tests), `ill` is the time of arrival at the illness state, and `ill.s` is the indicator of illness. `dth` and `dth.s` are the death time and death indicator, respectively. The data can be reshaped in the approriate long format as follows using the `mstate` function `msprep()` as follows
+The variables `cid` and `id` correspond to the cluster identification number and the individual identification number, respectively. The variable `group` is the binary group indicator, `ill` is the time of arrival at the illness state, and `ill.s` is the indicator of illness. `dth` and `dth.s` are the death time and death indicator, respectively. The data can be reshaped in the approriate long format as follows using the `mstate` function `msprep()` as follows
 ```
 > data <- msprep(data = data, trans = tmat, time = c(NA, "ill", "dth"),
 +                status = c(NA, "ill.s", "dth.s"),
