@@ -50,7 +50,7 @@ from      Health Illness Death
 * `h`: the state h in Pr(X(t) = j| X(s) = h).
 * `j`: the state j in Pr(X(t) = j| X(s) = h).
 * `s`: the time s in Pr(X(t) = j| X(s) = h). The default value is `0`.
-* `weighted`: logical value. If `TRUE`, the estimator is weighted by the inverse of cluster sizes. This is useful when cluster size is random and is expected to be informative. The defaul value is `FALSE`.
+* `weighted`: logical value. If `TRUE`, the estimator is weighted by the inverse of cluster sizes. This is useful when cluster size is random and expected to be informative. The defaul value is `FALSE`.
 * `LMAJ`: logical value. If `TRUE`, the landmark version of the estimator is returned. This is useful when `s>0` and the Markov assumption is not plausible. The defaul value is `FALSE`.
 * `B`: number of nonparametric cluster bootstrap replications. If `B=0`, no standard errors or confidence intervals/bands are returned. The default value is `100`.
 * `cband`: logical value. If `TRUE`, the limits of the 95% simultaneous confidence band are returned. In this case one should use at least 1000 bootstrap replications. The defaul value is `FALSE`.
