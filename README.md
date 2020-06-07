@@ -59,7 +59,7 @@ The function `patp()` calculates the working independence Aalen-Johansen estimat
 
 ## Examples
 
-The artificial dataset `example_data.csv` (included in this repository) contain clustered observations from an illness-death process without recovery. The matrix `tmat` of possible transitions for this process can be created as follows:
+The artificial dataset `example_data.csv` (included in this repository) contain clustered observations from an illness-death process without recovery. The matrix `tmat` of possible transitions for this process can be created as follows
 ```
 > tmat <- transMat(x = list(c(2, 3), c(3), c()), 
 +                  names = c("Health", "Illness", "Death"))
@@ -72,4 +72,34 @@ from      Health Illness Death
   Health      NA       1     2
   Illness     NA      NA     3
   Death       NA      NA    NA
+```
+The dataset can be obtained as follows
+```
+> library(foreign)
+> data <- read.csv("example_data.csv")
+> head(data)
+  id cid       ill ill.s       dth dth.s group
+1  1   1 1.9184301     0 1.9184301     0     1
+2  2   1 1.9391350     0 1.9391350     0     1
+3  3   1 2.6312586     0 2.6312586     0     1
+4  4   1 0.3779283     0 0.3779283     0     1
+5  5   1 2.1919740     0 2.1919740     1     1
+6  6   1 1.5983068     1 2.7530976     0     1
+```
+The variables `cid` and `id` correspond to the cluster identification number and the individual identification number, respectively. The variable `group` is the binary group indicator (to be used for the illustration of the two-sample tests), `ill` is the time of arrival at the illness state, and `ill.s` is the indicator of illness. `dth` and `dth.s` are the death time and death indicator, respectively. The data can be reshaped in the approriate long format as follows using the `mstate` function `msprep()` as follows
+```
+> data <- msprep(data = data, trans = tmat, time = c(NA, "ill", "dth"),
++                status = c(NA, "ill.s", "dth.s"),
++                keep = c("cid", "group"))
+> head(data)
+An object of class 'msdata'
+
+Data:
+  id from to trans Tstart    Tstop     time status cid group
+1  1    1  2     1      0 1.918430 1.918430      0   1     1
+2  1    1  3     2      0 1.918430 1.918430      0   1     1
+3  2    1  2     1      0 1.939135 1.939135      0   1     1
+4  2    1  3     2      0 1.939135 1.939135      0   1     1
+5  3    1  2     1      0 2.631259 2.631259      0   1     1
+6  3    1  3     2      0 2.631259 2.631259      0   1     1
 ```
