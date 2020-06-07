@@ -44,17 +44,17 @@ The function `patp()` calculates the working independence Aalen-Johansen estimat
 
 ### Function `patp_test()`
 
-The function `patp_test()` calculates the p-value for the comparison of the population-averaged transition probability Pr(X(t) = j| X(s) = h) between two groups, using a two-sample Kolmogorov-Smirnov-type test. The function performes has the following arguments:
+The function `patp_test()` calculates the p-value for the comparison of the population-averaged transition probability Pr(X(t) = j| X(s) = h) between two groups, using a two-sample Kolmogorov-Smirnov-type test. The function performes has following arguments:
 
 * `data`: a data.frame in the long format required by the `mstate` package.
 * `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`.
 * `cid`: variable name that identifies the clusters.
 * `id`: variable name that identifies the individual observations.
-* `id`: variable name of the binary groupping variable.
+* `group`: variable name of the binary grouping variable.
 * `h`: the state h in Pr(X(t) = j| X(s) = h).
 * `j`: the state j in Pr(X(t) = j| X(s) = h).
 * `s`: the time s in Pr(X(t) = j| X(s) = h). The default value is `0`.
-* `weighted`: logical value. If `TRUE`, the estimator is weighted by the inverse of cluster sizes. This is useful when cluster size is random and expected to be informative. The defaul value is `FALSE`.
+* `weighted`: logical value. If `TRUE`, the estimators are weighted by the inverse of cluster sizes. This is useful when cluster size is random and expected to be informative. The defaul value is `FALSE`.
 * `LMAJ`: logical value. If `TRUE`, the landmark version of the estimator is used in the test. This is useful when `s>0` and the Markov assumption is not plausible. The defaul value is `FALSE`.
 * `B`: number of nonparametric cluster bootstrap replications. The default value is `1000`.
 
