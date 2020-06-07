@@ -19,8 +19,8 @@ The input data need to be a dataframe in the long format required by the `mstate
 * `Tstop`: ending time of the interval in record.
 * `from`: State of the process at at `Tstart`.
 * `to`: State of the process at at `Tstop`.
-* `trans`: an integer 1,...,k that uniquely identifies the transition.
-* `status`: binary 0/1 variable.
+* `trans`: an integer that uniquely identifies the transition.
+* `status`: Indicator variable. If `status=1`, the correspoding transition has been observed.
 
 For more details see <https://www.jstatsoft.org/article/view/v038i07>. 
 
@@ -28,23 +28,8 @@ For more details see <https://www.jstatsoft.org/article/view/v038i07>.
 
 The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities. These probabilities have the form Pr(X(t) = j| X(s) = h), where X(t) is the process of interest at time t, and h,j=1,...,k are possible states of the process X(t). The function has the following arguments:
 
-
 * `data`: a data.frame in the long format required by the `mstate` package.
-* `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`. For the special case of the illness-death model without recovery this can be achieved as follows.
-```
-> tmat <- transMat(x = list(c(2, 3), c(3), c()), 
-+                  names = c("Health", "Illness", "Death"))
-```
-The resulting matrix `tmat` is
-```
-> tmat
-         to
-from      Health Illness Death
-  Health      NA       1     2
-  Illness     NA      NA     3
-  Death       NA      NA    NA
-```
-
+* `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`.
 * `cid`: variable name that identifies the clusters.
 * `id`: variable name that identifies the individual observations.
 * `h`: the state h in Pr(X(t) = j| X(s) = h).
@@ -58,18 +43,32 @@ from      Health Illness Death
 
 ### Function `patp_test()`
 
-* `data`
-* `tmat`
-* `cid`
-* `id`
-* `group`
-* `h` 
-* `j`
-* `s`
-* `weighted`
-* `LMAJ`
-* `B`
+* `data`: a data.frame in the long format required by the `mstate` package.
+* `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`.
+* `cid`: variable name that identifies the clusters.
+* `id`: variable name that identifies the individual observations.
+* `id`: variable name of the binary groupping variable.
+* `h`: the state h in Pr(X(t) = j| X(s) = h).
+* `j`: the state j in Pr(X(t) = j| X(s) = h).
+* `s`: the time s in Pr(X(t) = j| X(s) = h). The default value is `0`.
+* `weighted`: logical value. If `TRUE`, the estimator is weighted by the inverse of cluster sizes. This is useful when cluster size is random and expected to be informative. The defaul value is `FALSE`.
+* `LMAJ`: logical value. If `TRUE`, the landmark version of the estimator is used in the test. This is useful when `s>0` and the Markov assumption is not plausible. The defaul value is `FALSE`.
+* `B`: number of nonparametric cluster bootstrap replications. The default value is `1000`.
 
 
 ## Examples
 
+For the special case of the illness-death model without recovery this can be achieved as follows.
+```
+> tmat <- transMat(x = list(c(2, 3), c(3), c()), 
++                  names = c("Health", "Illness", "Death"))
+```
+The resulting matrix `tmat` is
+```
+> tmat
+         to
+from      Health Illness Death
+  Health      NA       1     2
+  Illness     NA      NA     3
+  Death       NA      NA    NA
+```
