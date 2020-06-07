@@ -30,10 +30,13 @@ The function `patp()` calculates the working independence Aalen-Johansen estimat
 
 
 * `data`: a data.frame in the long format required by the mstate package
-* `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`. For the illness-death model without recovery this can be achieved as follows
+* `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`. For the special case of the illness-death model without recovery this can be achieved as follows
 ```
 > tmat <- transMat(x = list(c(2, 3), c(3), c()), 
 +                  names = c("Health", "Illness", "Death"))
+```
+The resulting matrix `tmat` is
+```
 > tmat
          to
 from      Health Illness Death
@@ -53,7 +56,7 @@ from      Health Illness Death
 * `cband`:
 
 
-### Description of `patp_test()`
+### Function `patp_test()`
 
 * `data`
 * `tmat`
