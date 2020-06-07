@@ -3,7 +3,7 @@ R code for nonparametric analysis of clustered multi-state processes
 
 ## Description
 
-This repository contains R functions for nonparametric analysis of (continuous-time) multi-state processes with cluster-correlated observations. These functions currently support nonparametric estimation of population-averaged transition probabilities, calculation of 95% pointwise confidence intervals and simultaneous confidence bands, and two-sample Kolmogorov-Smirnov-type tests. The functions do not impose assumptions regarding the within-cluster dependence and can be used for both Markov and non-Markov processes. Right censoring, left truncation, and informative cluster size are allowed.
+This repository contains R functions for nonparametric analysis of (continuous-time) multi-state processes with cluster-correlated observations. These functions currently support nonparametric estimation of population-averaged transition probabilities, calculation of 95% pointwise confidence intervals and simultaneous confidence bands, and two-sample Kolmogorov-Smirnov-type tests. The functions do not impose assumptions regarding the within-cluster dependence and can be used for both Markov and non-Markov processes. Right censoring, left truncation, and association between cluster size and the multi-state process (informative cluster size) are allowed.
 
 ## Main Functions
 
@@ -47,13 +47,13 @@ from      Health Illness Death
 
 * `cid`: variable name that identifies the clusters.
 * `id`: variable name that identifies the individual observations.
-* `h`:
-* `j`:
-* `s`:
-* `weighted`:
-* `LMAJ`:
-* `B`:
-* `cband`:
+* `h`: the state h in Pr(X(t) = j| X(s) = h).
+* `j`: the state j in Pr(X(t) = j| X(s) = h).
+* `s`: the time s in Pr(X(t) = j| X(s) = h).
+* `weighted`: logical value. If `TRUE`, the estimator is weighted by the inverse of cluster sizes. This is useful when cluster size is expected to be informative. The defaul value is `FALSE`.
+* `LMAJ`: logical value. If `TRUE`, the estimator is weighted by the inverse of cluster sizes. This is useful when cluster size is expected to be informative. The defaul value is `FALSE`.
+* `B`: number of nonparametric cluster bootstrap replications. If `B'=0, no standard errors or confidence intervals/bands are returned. 
+* `cband`: logical value. If `TRUE`, the limits of the 95% simultaneous confidence band are returned. In this case it is one should use at least 1000 bootstrap replications. The defaul value is `FALSE`.
 
 
 ### Function `patp_test()`
