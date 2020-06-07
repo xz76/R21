@@ -17,12 +17,13 @@ The input data need to be a dataframe in the long format required by the `mstate
 
 * `Tstart`: starting time of the interval in the record.
 * `Tstop`: ending time of the interval in record.
-* `from`: State of the process at at `Tstart`.
-* `to`: State of the process at at `Tstop`.
+* `from`: State of the process at `Tstart`. The possible values are 1,...,k. 
+* `to`: State of the process at `Tstop`. The possible values are 1,...,k.
 * `trans`: an integer that uniquely identifies the transition.
 * `status`: Indicator variable. If `status=1`, the correspoding transition has been observed.
 
-For more details see <https://www.jstatsoft.org/article/view/v038i07>. 
+The `mstate` function `msprep()` can be used to reshape a dataset in wide format into the required long format. For more details see <https://www.jstatsoft.org/article/view/v038i07>. 
+
 
 ### Function `patp()`
 
