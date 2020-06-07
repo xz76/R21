@@ -57,7 +57,7 @@ The function `patp()` calculates the working independence Aalen-Johansen estimat
 * `B`: number of nonparametric cluster bootstrap replications. The default value is `1000`.
 
 
-## Examples
+## Example
 
 The artificial dataset `example_data.csv` (included in this repository) contain clustered observations from an illness-death process without recovery. The matrix `tmat` of possible transitions for this process can be created as follows
 ```
@@ -102,4 +102,8 @@ Data:
 4  2    1  3     2      0 1.939135 1.939135      0   1     1
 5  3    1  2     1      0 2.631259 2.631259      0   1     1
 6  3    1  3     2      0 2.631259 2.631259      0   1     1
+```
+Estimating the population-averaged transition probability P(X(t) = 2| X(0) = 1) and calculating standard errors and 95% condidence intervals can be achieved as follows
+```
+P12 <- patp(data=data, tmat=tmat, cid="cid", id="id", h=1, j=2, s=0, B=100)
 ```
