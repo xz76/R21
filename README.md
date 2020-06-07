@@ -15,12 +15,12 @@ The functions require the R packages `mstate` and `Rfast` to be installed.
 ### Input data
 The input data need to be a dataframe in the long format required by the `mstate` package. The dataframe should contain the variables
 
-* `from`:
-* `to`:
-* `trans`:
-* `Tstart`:
-* `Tstop`:
-* `status`:
+* `Tstart`: starting time of the interval in the record.
+* `Tstop`: ending time of the interval in record.
+* `from`: State of the process at at `Tstart`.
+* `to`: State of the process at at `Tstop`.
+* `trans`: an integer 1,...,k that uniquely identifies the transition.
+* `status`: binary 0/1 variable.
 
 For more details see <https://www.jstatsoft.org/article/view/v038i07>. 
 
