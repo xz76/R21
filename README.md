@@ -10,7 +10,7 @@ This repository contains R functions for nonparametric analysis of (continuous-t
 The main functions are `patp()` and `patp_test()`. Both functions are beta version.
 
 ### Dependencies
-The functions require the R packages `mstate` and `Rfast` to be installed.
+The functions require the R packages `mstate` and `Rfast` to be installed and loaded.
 
 ### Input data
 The input data need to be a dataframe in the long format required by the `mstate` package. The dataframe should contain the variables
@@ -105,11 +105,15 @@ Data:
 ```
 Estimating the population-averaged transition probability P(X(t) = 2| X(0) = 1) and calculating standard errors and 95% condidence intervals based on 100 cluster bootstrap replications can be achieved as follows
 ```
-> P12 <- patp(data=data, tmat=tmat, cid="cid", id="id", h=1, j=2, s=0, B=100)
+> P12 <- patp(data=data, tmat=tmat, cid="cid", id="id", 
++             h=1, j=2, s=0, B=1000, cband=TRUE)
 ```
-For the illness-death model without recovery, the transition probability P(X(t) = 2| X(0) = 1) is equal to the state occupation probability P(X(t) = 2). Calculation of 95% simultaneous confidence bands can be achieved as follows
+For the illness-death model without recovery, the transition probability P(X(t) = 2| X(0) = 1) is equal to the state occupation probability P(X(t) = 2). To also calculate of 95% simultaneous confidence bands requires the code
 ```
-> P12 <- patp(data=data, tmat=tmat, cid="cid", id="id", h=1, j=2, s=0, B=1000, cband=TRUE)
+> P12 <- patp(data=data, tmat=tmat, cid="cid", id="id", 
++             h=1, j=2, s=0, B=1000, cband=TRUE)
 ```
-It is recommended to use 1000 cluster bootstrap replications when calculating 95% confidence bands. Two-sample comparison of the transition probability P(X(t) = 2| X(0) = 1) between the groups defined by the variable `group` can be performed as follows.
-
+It is recommended to use at least 1000 cluster bootstrap replications when calculating 95% confidence bands. Two-sample comparison of the transition probability P(X(t) = 2| X(0) = 1) between the groups defined by the variable `group` can be performed as follows.
+```
+```
+It is recommended to use at least 1000 cluster bootstrap replications when performing two-sample hypothesis testing.
