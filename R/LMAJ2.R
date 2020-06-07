@@ -1,6 +1,8 @@
 
-## Auxiliary function to create to calculate the landmark version
-## of the working independence Aalen-Johansen estimator
+## Auxiliary function to calculate the landmark version
+## of the working independence Aalen-Johansen estimator.
+## This is a modification of the LMAJ function in the 
+## R package mstate.
 
 LMAJ2 <- function (msdata, tmat, id, s, h, j, weighted){
   if (is.null(tmat)) 
