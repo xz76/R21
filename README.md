@@ -111,12 +111,12 @@ Estimating the population-averaged transition probability P(X(t) = 2| X(0) = 1) 
 > P12 <- patp(data=data, tmat=tmat, cid="cid", id="id", 
 +             h=1, j=2, s=0, B=100)
 ```
-For the illness-death model without recovery, the transition probability P(X(t) = 2| X(0) = 1) is equal to the state occupation probability P(X(t) = 2). To also calculate of 95% simultaneous confidence bands requires the code
+For the illness-death model without recovery, the transition probability P(X(t) = 2| X(0) = 1) is equal to the state occupation probability P(X(t) = 2). To also calculate 95% simultaneous confidence bands requires the code
 ```
 > P12 <- patp(data=data, tmat=tmat, cid="cid", id="id", 
 +             h=1, j=2, s=0, B=1000, cband=TRUE)
 ```
-It is recommended to use at least 1000 cluster bootstrap replications when calculating 95% confidence bands. Two-sample comparison of the transition probability P(X(t) = 2| X(0) = 1) between the groups defined by the variable `group` can be performed as follows.
+It is recommended to use at least 1000 cluster bootstrap replications when calculating 95% confidence bands. Two-sample comparison of the transition probability P(X(t) = 2| X(0) = 1) between the groups defined by the variable `group` can be performed as follows
 ```
 > patp_test(data=data, tmat=tmat, cid="cid", id="id",
 +           group="group", h=1, j=2, s=0, B=1000)
