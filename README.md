@@ -29,8 +29,8 @@ For more details see <https://www.jstatsoft.org/article/view/v038i07>.
 The function `patp()` calculates the working independence Aalen-Johansen estimator of the population averaged transition probabilities. These probabilities have the form Pr(X(t) = j| X(s) = h), where X(t) is the process of interest at time t, and h,j=1,...,k are possible states of the process X(t). The function has the following arguments:
 
 
-* `data`: a data.frame in the long format required by the `mstate` package
-* `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`. For the special case of the illness-death model without recovery this can be achieved as follows
+* `data`: a data.frame in the long format required by the `mstate` package.
+* `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`. For the special case of the illness-death model without recovery this can be achieved as follows.
 ```
 > tmat <- transMat(x = list(c(2, 3), c(3), c()), 
 +                  names = c("Health", "Illness", "Death"))
@@ -53,7 +53,7 @@ from      Health Illness Death
 * `weighted`: logical value. If `TRUE`, the estimator is weighted by the inverse of cluster sizes. This is useful when cluster size is expected to be informative. The defaul value is `FALSE`.
 * `LMAJ`: logical value. If `TRUE`, the landmark version of the estimator is returned. This is useful when `s>0` and the Markov assumption is not plausible. The defaul value is `FALSE`.
 * `B`: number of nonparametric cluster bootstrap replications. If `B=0`, no standard errors or confidence intervals/bands are returned. The default value is `100`.
-* `cband`: logical value. If `TRUE`, the limits of the 95% simultaneous confidence band are returned. In this case it is one should use at least 1000 bootstrap replications. The defaul value is `FALSE`.
+* `cband`: logical value. If `TRUE`, the limits of the 95% simultaneous confidence band are returned. In this case one should use at least 1000 bootstrap replications. The defaul value is `FALSE`.
 
 
 ### Function `patp_test()`
