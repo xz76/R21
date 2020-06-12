@@ -88,23 +88,42 @@ The dataset can be obtained as follows
 5  5   1 2.1919740     0 2.1919740     1     1
 6  6   1 1.5983068     1 2.7530976     0     1
 ```
-The variables `cid` and `id` correspond to the cluster identification number and the individual identification number, respectively. The variable `group` is the binary group indicator, `ill` is the time of arrival at the illness state, and `ill.s` is the indicator of illness. `dth` and `dth.s` are the death time and death indicator, respectively. The data can be reshaped in the approriate long format using the `mstate` function `msprep()` as follows
+The variables `cid` and `id` correspond to the cluster identification number and the individual identification number, respectively. The variable `group` is the binary group indicator, `ill` is the time of arrival at the illness state, and `ill.s` is the indicator of illness. `dth` and `dth.s` are the death time and death indicator, respectively. The data frame contains one record per individual. Under the illness-death model without recovery, there are four possible scenarios; i) no "illness" or "death" are observed (i.e. right censoring while in the "healhty" state), ii) only "illness"
+ is observed (i.e. right censoring while in the "illness" state), iii) only "death" is observed (i.e. there was a direct transition from the "healhty" state to the "death" state), and iv) both "illness" and "death" are observed. An example of these four cases from the data frame `data` is presented below:
+```
+> data[data$id %in% c(1,5,6,16),]
+   id cid       ill ill.s       dth dth.s group
+1   1   1 1.9184301     0 1.9184301     0     1
+5   5   1 2.1919740     0 2.1919740     1     1
+6   6   1 1.5983068     1 2.7530976     0     1
+16 16   1 0.3580249     1 0.7174463     1     0
+```
+The data can be reshaped in the approriate long format using the `mstate` function `msprep()` as follows
 ```
 > data <- msprep(data = data, trans = tmat, time = c(NA, "ill", "dth"),
 +                status = c(NA, "ill.s", "dth.s"),
 +                keep = c("cid", "group"))
-> head(data)
+```
+The data of the four records listed above are now as follows:
+```
+> data[data$id %in% c(1,5,6,16),]
 An object of class 'msdata'
 
 Data:
-  id from to trans Tstart    Tstop     time status cid group
-1  1    1  2     1      0 1.918430 1.918430      0   1     1
-2  1    1  3     2      0 1.918430 1.918430      0   1     1
-3  2    1  2     1      0 1.939135 1.939135      0   1     1
-4  2    1  3     2      0 1.939135 1.939135      0   1     1
-5  3    1  2     1      0 2.631259 2.631259      0   1     1
-6  3    1  3     2      0 2.631259 2.631259      0   1     1
+   id from to trans    Tstart     Tstop      time status cid group
+1   1    1  2     1 0.0000000 1.9184301 1.9184301      0   1     1
+2   1    1  3     2 0.0000000 1.9184301 1.9184301      0   1     1
+9   5    1  2     1 0.0000000 2.1919740 2.1919740      0   1     1
+10  5    1  3     2 0.0000000 2.1919740 2.1919740      1   1     1
+11  6    1  2     1 0.0000000 1.5983068 1.5983068      1   1     1
+12  6    1  3     2 0.0000000 1.5983068 1.5983068      0   1     1
+13  6    2  3     3 1.5983068 2.7530976 1.1547908      0   1     1
+33 16    1  2     1 0.0000000 0.3580249 0.3580249      1   1     0
+34 16    1  3     2 0.0000000 0.3580249 0.3580249      0   1     0
+35 16    2  3     3 0.3580249 0.7174463 0.3594214      1   1     0
 ```
+
+
 Estimating the population-averaged transition probability P(X(t) = 2| X(0) = 1) and calculating standard errors and 95% pointwise confidence intervals based on 100 cluster bootstrap replications can be achieved as follows
 ```
 > set.seed(1234)
