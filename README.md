@@ -20,7 +20,7 @@ The input data need to be a data frame in the long format required by the `mstat
 * `from`: the state of the process at `Tstart`. The possible values are 1,...,k. 
 * `to`: the state of the process at `Tstop`. The possible values are 1,...,k.
 * `trans`: an integer that uniquely identifies the transition.
-* `status`: indicator variable. If `status=1`, the correspoding transition has been observed.
+* `status`: indicator variable. If `status=1`, the corresponding transition has been observed.
 
 The `mstate` function `msprep()` can be used to reshape a dataset in wide format into the required long format. For more details see <https://www.jstatsoft.org/article/view/v038i07>. 
 
@@ -36,15 +36,15 @@ The function `patp()` calculates the working independence Aalen-Johansen estimat
 * `h`: the state h in Pr(X(t) = j| X(s) = h).
 * `j`: the state j in Pr(X(t) = j| X(s) = h).
 * `s`: the time s in Pr(X(t) = j| X(s) = h). The default value is `0`.
-* `weighted`: logical value. If `TRUE`, the estimator is weighted by the inverse of the cluster sizes. This is useful when cluster size is random and expected to be informative. The defaul value is `FALSE`.
-* `LMAJ`: logical value. If `TRUE`, the landmark version of the estimator is returned. This is useful when `s>0` and the Markov assumption is not plausible. The defaul value is `FALSE`.
+* `weighted`: logical value. If `TRUE`, the estimator is weighted by the inverse of the cluster sizes. This is useful when cluster size is random and expected to be informative. The default value is `FALSE`.
+* `LMAJ`: logical value. If `TRUE`, the landmark version of the estimator is returned. This is useful when `s>0` and the Markov assumption is not plausible. The default value is `FALSE`.
 * `B`: number of nonparametric cluster bootstrap replications. If `B=0`, no standard errors or confidence intervals/bands are returned. The default value is `100`.
-* `cband`: logical value. If `TRUE`, the limits of the 95% simultaneous confidence band are returned. The defaul value is `FALSE`.
+* `cband`: logical value. If `TRUE`, the limits of the 95% simultaneous confidence band are returned. The default value is `FALSE`.
 
 
 ### Function `patp_test()`
 
-The function `patp_test()` calculates the p-value for the comparison of the population-averaged transition probability Pr(X(t) = j| X(s) = h) between two groups, using a two-sample Kolmogorov-Smirnov-type test. The function performes has following arguments:
+The function `patp_test()` calculates the p-value for the comparison of the population-averaged transition probability Pr(X(t) = j| X(s) = h) between two groups, using a two-sample Kolmogorov-Smirnov-type test. The function performs has following arguments:
 
 * `data`: a data.frame in the long format required by the `mstate` package.
 * `tmat`: a matrix of possible transitions between states of the process where different transitions are identified by a different integer. If a direct transition between two states is not possible it is indicated as NA. This matrix can be obtained via the `mstate` function `transMat()`.
@@ -54,8 +54,8 @@ The function `patp_test()` calculates the p-value for the comparison of the popu
 * `h`: the state h in Pr(X(t) = j| X(s) = h).
 * `j`: the state j in Pr(X(t) = j| X(s) = h).
 * `s`: the time s in Pr(X(t) = j| X(s) = h). The default value is `0`.
-* `weighted`: logical value. If `TRUE`, the estimators are weighted by the inverse of cluster sizes. This is useful when cluster size is random and expected to be informative. The defaul value is `FALSE`.
-* `LMAJ`: logical value. If `TRUE`, the landmark version of the estimator is used in the test. This is useful when `s>0` and the Markov assumption is not plausible. The defaul value is `FALSE`.
+* `weighted`: logical value. If `TRUE`, the estimators are weighted by the inverse of cluster sizes. This is useful when cluster size is random and expected to be informative. The default value is `FALSE`.
+* `LMAJ`: logical value. If `TRUE`, the landmark version of the estimator is used in the test. This is useful when `s>0` and the Markov assumption is not plausible. The default value is `FALSE`.
 * `B`: number of nonparametric cluster bootstrap replications. The default value is `1000`.
 
 
@@ -88,8 +88,8 @@ The dataset can be obtained as follows
 5  5   1 2.1919740     0 2.1919740     1     1
 6  6   1 1.5983068     1 2.7530976     0     1
 ```
-The variables `cid` and `id` correspond to the cluster identification number and the individual identification number, respectively. The variable `group` is the binary group indicator, `ill` is the time of arrival at the illness state, and `ill.s` is the indicator of illness. `dth` and `dth.s` are the death time and death indicator, respectively. The data frame contains one record per individual. Under the illness-death model without recovery, there are four possible scenarios; i) no "illness" or "death" are observed (i.e. right censoring while in the "healhty" state), ii) only "illness"
- is observed (i.e. right censoring while in the "illness" state), iii) only "death" is observed (i.e. there was a direct transition from the "healhty" state to the "death" state), and iv) both "illness" and "death" are observed. An example of these four cases from the data frame `data` is presented below:
+The variables `cid` and `id` correspond to the cluster identification number and the individual identification number, respectively. The variable `group` is the binary group indicator, `ill` is the time of arrival at the illness state, and `ill.s` is the indicator of illness. `dth` and `dth.s` are the death time and death indicator, respectively. The data frame contains one record per individual. Under the illness-death model without recovery, there are four possible scenarios; i) no "illness" or "death" are observed (i.e. right censoring while in the "healthy" state), ii) only "illness"
+ is observed (i.e. right censoring while in the "illness" state), iii) only "death" is observed (i.e. there was a direct transition from the "healthy" state to the "death" state), and iv) both "illness" and "death" are observed. An example of these four cases from the data frame `data` is presented below:
 ```
 > data[data$id %in% c(1,5,6,16),]
    id cid       ill ill.s       dth dth.s group
@@ -98,7 +98,7 @@ The variables `cid` and `id` correspond to the cluster identification number and
 6   6   1 1.5983068     1 2.7530976     0     1
 16 16   1 0.3580249     1 0.7174463     1     0
 ```
-The data frome can be reshaped in the approriate long format using the `mstate` function `msprep()` as follows
+The data frame can be reshaped in the appropriate long format using the `mstate` function `msprep()` as follows
 ```
 > data <- msprep(data = data, trans = tmat, time = c(NA, "ill", "dth"),
 +                status = c(NA, "ill.s", "dth.s"),
