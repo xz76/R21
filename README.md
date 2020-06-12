@@ -98,7 +98,7 @@ The variables `cid` and `id` correspond to the cluster identification number and
 6   6   1 1.5983068     1 2.7530976     0     1
 16 16   1 0.3580249     1 0.7174463     1     0
 ```
-The data can be reshaped in the approriate long format using the `mstate` function `msprep()` as follows
+The data frome can be reshaped in the approriate long format using the `mstate` function `msprep()` as follows
 ```
 > data <- msprep(data = data, trans = tmat, time = c(NA, "ill", "dth"),
 +                status = c(NA, "ill.s", "dth.s"),
@@ -122,7 +122,7 @@ Data:
 34 16    1  3     2 0.0000000 0.3580249 0.3580249      0   1     0
 35 16    2  3     3 0.3580249 0.7174463 0.3594214      1   1     0
 ```
-
+Individuals who did not visit the "illness" state (individuals with `id` 1 and 5 in the example) have two records only. This is because such individuals do not contain information about the transition 3 (i.e. from the "illness" state to the "death" state). Individuals who visited the "illness" state (individuals with `id` 6 and 16) have three records since they contain information about all three states.
 
 Estimating the population-averaged transition probability P(X(t) = 2| X(0) = 1) and calculating standard errors and 95% pointwise confidence intervals based on 100 cluster bootstrap replications can be achieved as follows
 ```
