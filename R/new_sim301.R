@@ -207,6 +207,9 @@ se_bootnew <- function(data, times=1, j, nboot=100,
     for(i in 1:length(bid)){
       bdat <- rbind(bdat, data[data$id==bid[i],])
     }
+    if (all(bdat$s1 == bdat$s2)){
+      next
+    }
       res <- sop_tnew(data = bdat, tau=tau, S = S, T_c = T_c, ipw= ipw,
                       trans = trans, times= times)
       theta <- rbind(theta, res)
@@ -223,8 +226,6 @@ se_bootnew <- function(data, times=1, j, nboot=100,
   b.se <- b.se[,-1]
   return(b.se)
 }
-
-
 
 
 # Monte-Carlo calculation of the true P_j(t)
@@ -300,8 +301,6 @@ true.P_j <- function(n=10000, a12=0.5, a13=1, a21=0.25 ,a23=0.5,
           s1 <- 1
           s2 <- 3
         }
-
-
         id <- rep(i, length(t1))
         Z <- rep(Z, length(t1))
         outdata <- rbind(outdata, data.frame(id, t1, t2, s1, s2, Z))
@@ -328,13 +327,13 @@ true.P_j <- function(n=10000, a12=0.5, a13=1, a21=0.25 ,a23=0.5,
 
 #Simulation function for the IPCW estimator for dependent censoring
 run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
-                     a12=0.5, a13=1, a21=0.75 ,a23=0.5,
+                     a12=0.5, a13=1, a21=0.75 ,a23=0.5, seed = 123,
                      p12=1, p13=1, p21=1, p23=1, c.rate=1, b.Z.cens=0.5,
-                     p.Z=0.4, b.Z=0.5, gamma_0=-1, gamma_1=1, seed=1234, nboot=100,
+                     p.Z=0.4, b.Z=0.5, gamma_0=-1, gamma_1=1, nboot=100,
                     trace=TRUE,  tau=NULL, S, T_c , ipw, trans, P_0 ){
   set.seed(seed)
   out <- foreach(i = seq_len(N)) %dopar%
-    ({
+    ({ 
     dat <- simulate(n=n, a12=a12, a13=a13, a21=a21, a23=a23,
                          p12=p12, p13=p13, p21=p21, p23=p23, c.rate=c.rate,
                          b.Z.cens=b.Z.cens, p.Z=p.Z, b.Z=b.Z,
@@ -384,32 +383,49 @@ P_0 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
 # saveRDS(res_800, file = "res_800.rds")
 
 ## Event Numbers
-event_rate <- function(N, n, times = c(0.5, 1, 1.5), j=2,
-                  a12=0.5, a13=1, a21=0.75 ,a23=0.5,
-                  p12=0.75, p13=1, p21=1, p23=1, from = 1, to = 2){
-  
-  res <- replicate(N, { sapply(times, function(t){
-    tmp = simulate(n = n, p12 = p12)
-    sum(tmp$s1 == from & tmp$s2 == to & tmp$t2 <= t)
-  })
-  })
-  return(apply(res, 1, mean))
-}
-e.num200 <- event_rate(N = 1000, n = 200, p12 = 0.75)
-e.num400 <- event_rate(N = 1000, n = 400, p12 = 0.75)
-e.num800 <- event_rate(N = 1000, n = 800, p12 = 0.75)
+# event_rate <- function(N, n, times = c(0.5, 1, 1.5), j=2,
+#                   a12=0.5, a13=1, a21=0.75 ,a23=0.5,
+#                   p12=0.75, p13=1, p21=1, p23=1, from = 1, to = 2){
+#   
+#   res <- replicate(N, { sapply(times, function(t){
+#     tmp = simulate(n = n, p12 = p12)
+#     sum(tmp$s1 == from & tmp$s2 == to & tmp$t2 <= t)
+#   })
+#   })
+#   return(apply(res, 1, mean))
+# }
+# e.num200 <- event_rate(N = 1000, n = 200, p12 = 0.75)
+# e.num400 <- event_rate(N = 1000, n = 400, p12 = 0.75)
+# e.num800 <- event_rate(N = 1000, n = 800, p12 = 0.75)
 
 P_1 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
                  a12=0.5, a13=1, a21=0.75 ,a23=0.5,
-                 p12=0.75, p13=1, p21=1, p23=1)
+                 p12=0.5, p13=1, p21=1, p23=1)
+
+# try200 <- run.sim(N=100, n=200, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
+#                   T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12=0.5)
 
 nonhomo_200 <- run.sim(N=1000, n=200, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
-                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12 = 0.75)
+                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1,  p12=0.5)
 nonhomo_400 <- run.sim(N=1000, n=400, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
-                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12 = 0.75)
+                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12 = 0.5)
 nonhomo_800 <- run.sim(N=1000, n=800, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
-                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12 = 0.75)
+                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12=0.5)
 
 saveRDS(nonhomo_200, file = "nonhomo_200.rds")
 saveRDS(nonhomo_400, file = "nonhomo_400.rds")
 saveRDS(nonhomo_800, file = "nonhomo_800.rds")
+
+
+###########
+##### Statistics
+d1 <- simulate(n = 200,  p12=0.5)
+d1 <- simulate(n = 200, c.rate = 0.2)
+timepoint <- seq(0, 2, 0.1)
+state_num <- function(time, state, dat) {
+  nrow(subset(dat, s1 == state & t1 <= time & time < t2))
+} 
+state1 <- sapply(timepoint, state_num, state = 1, dat = d1)
+state2 <- sapply(timepoint, state_num, state = 2, dat = d1)
+res <- data.frame(timepoint, state1, state2)
+#res$proportion <- percent(res$state1/res$state2)
