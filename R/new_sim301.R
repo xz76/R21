@@ -137,7 +137,12 @@ sop_tnew <- function(data, tau=NULL, S, T_c, ipw=0, trans,
         data_h <- data[data$s1==h,]
         data_h$delta <- 1*(data_h$s2==j)
         if(ipw==0){
-          fit <- coxph(Surv(t1,t2,delta,type="counting")~1, data=data_h)
+            fit <- tryCatch(
+                coxph(Surv(t1,t2,delta,type="counting")~1, data=data_h),
+                error = function(e) e
+            )
+            if (inherits(fit, "error"))
+                browser()
         } else {
           fit <- coxph(Surv(t1,t2,delta,type="counting")~1,
                        weight=weightVL, data=data_h)
@@ -193,38 +198,34 @@ sop_tnew <- function(data, tau=NULL, S, T_c, ipw=0, trans,
     }else{
       out <- p_n
     }
-   
+
     return(out)
 }
 
 se_bootnew <- function(data, times=1, j, nboot=100,
-                    tau = NULL, S = 1:3, T_c = 1:2, ipw = 0, trans){
-  id <- sort(unique(data$id))
-  theta <- NULL
-  for(b in 1:nboot){
-    bdat <- NULL
-    bid <- sample(id, replace=TRUE)
-    for(i in 1:length(bid)){
-      bdat <- rbind(bdat, data[data$id==bid[i],])
+                       tau = NULL, S = 1:3, T_c = 1:2, ipw = 0, trans){
+    id <- sort(unique(data$id))
+    theta <- NULL
+    for (b in 1:nboot) {
+        bdat <- NULL
+        bid <- sample(id, replace=TRUE)
+        for(i in 1:length(bid)){
+            bdat <- rbind(bdat, data[data$id==bid[i],])
+        }
+        res <- sop_tnew(data = bdat, tau=tau, S = S, T_c = T_c, ipw= ipw,
+                        trans = trans, times= times)
+        theta <- rbind(theta, res)
     }
-    if (all(bdat$s1 == bdat$s2)){
-      next
-    }
-      res <- sop_tnew(data = bdat, tau=tau, S = S, T_c = T_c, ipw= ipw,
-                      trans = trans, times= times)
-      theta <- rbind(theta, res)
-  }
-
-  dat <- lapply(S, function(i){
-    idx <- seq(i, nrow(theta), by = 3)
-    theta[idx,]
-  })
-  b.se <- lapply(dat, function(data){
-   apply(data, 2, sd)
-  })
-  b.se <- do.call(rbind, b.se)
-  b.se <- b.se[,-1]
-  return(b.se)
+    dat <- lapply(S, function(i){
+        idx <- seq(i, nrow(theta), by = 3)
+        theta[idx,]
+    })
+    b.se <- lapply(dat, function(data){
+        apply(data, 2, sd)
+    })
+    b.se <- do.call(rbind, b.se)
+    b.se <- b.se[,-1]
+    return(b.se)
 }
 
 
@@ -332,8 +333,8 @@ run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
                      p.Z=0.4, b.Z=0.5, gamma_0=-1, gamma_1=1, nboot=100,
                     trace=TRUE,  tau=NULL, S, T_c , ipw, trans, P_0 ){
   set.seed(seed)
-  out <- foreach(i = seq_len(N)) %dopar%
-    ({ 
+  out <- foreach(i = seq_len(N)) %do%
+    ({
     dat <- simulate(n=n, a12=a12, a13=a13, a21=a21, a23=a23,
                          p12=p12, p13=p13, p21=p21, p23=p23, c.rate=c.rate,
                          b.Z.cens=b.Z.cens, p.Z=p.Z, b.Z=b.Z,
@@ -342,6 +343,7 @@ run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
                     trans = trans, times= times)
     se <- se_bootnew(dat, times = times, nboot = nboot, tau = tau, S = S,
                      T_c = T_c, ipw = ipw, trans = trans, j = state)
+    return(1)
     se_n <- se[, state]
     P_n <- res[, state +1]
     ecp <- 1*(P_n - 1.96*se_n <= P_0 &
@@ -349,6 +351,7 @@ run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
 
     list(P_n = P_n, se_n = se_n, ecp = ecp)
     })
+  return(1)
   P_n <- do.call(rbind, lapply(out, function(a) a$P_n))
   se_n <- do.call(rbind, lapply(out, function(a) a$se_n))
   ecp <- do.call(rbind, lapply(out, function(a) a$ecp))
@@ -363,7 +366,8 @@ run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
   rownames(res) <- times
   return(res)
 }
-#Censoring adjusted estimator
+
+## Censoring adjusted estimator
 set.seed(12345)
 tmatrix <- trans(state_names = c("health", "illness", "death"),from = c(1, 1, 1, 2, 2),
                      to = c(2, 2, 3, 3, 1))
@@ -373,7 +377,7 @@ P_0 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
 
 # res_200 <- run.sim(N=1000, n=200, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
 #         T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_0)
-# 
+#
 # res_400 <- run.sim(N=1000, n=400, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
 #         T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_0)
 # res_800 <- run.sim(N=1000, n=800, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
@@ -386,7 +390,7 @@ P_0 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
 # event_rate <- function(N, n, times = c(0.5, 1, 1.5), j=2,
 #                   a12=0.5, a13=1, a21=0.75 ,a23=0.5,
 #                   p12=0.75, p13=1, p21=1, p23=1, from = 1, to = 2){
-#   
+#
 #   res <- replicate(N, { sapply(times, function(t){
 #     tmp = simulate(n = n, p12 = p12)
 #     sum(tmp$s1 == from & tmp$s2 == to & tmp$t2 <= t)
@@ -424,7 +428,7 @@ d1 <- simulate(n = 200, c.rate = 0.2)
 timepoint <- seq(0, 2, 0.1)
 state_num <- function(time, state, dat) {
   nrow(subset(dat, s1 == state & t1 <= time & time < t2))
-} 
+}
 state1 <- sapply(timepoint, state_num, state = 1, dat = d1)
 state2 <- sapply(timepoint, state_num, state = 2, dat = d1)
 res <- data.frame(timepoint, state1, state2)
