@@ -12,7 +12,7 @@ doMC::registerDoMC(cores = parallel::detectCores())
 # Simulate right-censored processes from the illness-death model with recovery
 simulate <- function(n=1000, a12=0.5, a13=1, a21=0.75 ,a23=0.5,
                      p12=1, p13=1, p21=1, p23=1, c.rate=1, b.Z.cens=0.5,
-                     p.Z=0.4, b.Z=0.5, gamma_0=-1, gamma_1=1) {
+                     p.Z=0.4, b.Z=0.5, gamma_0=-1, gamma_1=1, scale0 = 1) {
   # In this function when p12=p13=p21=p23=1 we have a homogeneous process
   # (i.e. time-constant intensities)
 
@@ -29,8 +29,8 @@ simulate <- function(n=1000, a12=0.5, a13=1, a21=0.75 ,a23=0.5,
 
       CC <- rexp(1, rate=c.rate*exp(b.Z.cens*Z))
 
-      t12 <- rweibull(1, shape=p12, scale=(1/(a12*exp(b.Z*Z))))
-      t13 <- rweibull(1, shape=p13, scale=(1/(a13*exp(b.Z*Z))))
+      t12 <- rweibull(1, shape=p12, scale=(scale0/(a12*exp(b.Z*Z))))
+      t13 <- rweibull(1, shape=p13, scale=(scale0/(a13*exp(b.Z*Z))))
       stop <- 1*((t13 < t12) | (CC < t12)) #Stop if death or censoring first
       x1 <- min(c(t12, t13)) # Exit time from state 1 (ignoring censoring)
       if (stop==0){
@@ -41,9 +41,9 @@ simulate <- function(n=1000, a12=0.5, a13=1, a21=0.75 ,a23=0.5,
         while (stop==0){
           if(s2[length(s2)]==2){
             t23 <- rtrunc(1, spec="weibull", a=t2[length(t2)], b=Inf,
-                          shape=p23, scale=(1/(a23*exp(b.Z*Z))))
+                          shape=p23, scale=(scale0/(a23*exp(b.Z*Z))))
             t21 <- rtrunc(1, spec="weibull", a=t2[length(t2)], b=Inf,
-                          shape=p21, scale=(1/(a21*exp(b.Z*Z))))
+                          shape=p21, scale=(scale0/(a21*exp(b.Z*Z))))
 
             stop <- 1*((t23 < t21) | (CC < t21)) #Stop if death or censoring first
             x2 <- min(c(t21, t23)) # Exit time from state 2 (ignoring censoring)
@@ -54,9 +54,9 @@ simulate <- function(n=1000, a12=0.5, a13=1, a21=0.75 ,a23=0.5,
             s2 <- c(s2, ifelse(x2 <= CC, ifelse(t21 <= t23, 1, 3), 2))
           } else {
             t12 <- rtrunc(1, spec="weibull", a=t2[length(t2)], b=Inf,
-                          shape=p12, scale=(1/(a12*exp(b.Z*Z))))
+                          shape=p12, scale=(scale0/(a12*exp(b.Z*Z))))
             t13 <- rtrunc(1, spec="weibull", a=t2[length(t2)], b=Inf,
-                          shape=p13, scale=(1/(a13*exp(b.Z*Z))))
+                          shape=p13, scale=(scale0/(a13*exp(b.Z*Z))))
 
             stop <- 1*((t13 < t12) | (CC < t12)) #Stop if death or censoring first
             x1 <- min(c(t12, t13)) # Exit time from state 1 (ignoring censoring)
@@ -91,6 +91,8 @@ simulate <- function(n=1000, a12=0.5, a13=1, a21=0.75 ,a23=0.5,
   # s2: state at the end time of the interval
   # if s1==s2 then right censoring occured at t2 at this interval
   outdata <- outdata[order(outdata$id, outdata$t1, outdata$t2),]
+  # outdata$t1 <- 1000 * outdata$t1
+  # outdata$t2 <- 1000 * outdata$t2
   return(outdata)
 }
 
@@ -137,15 +139,12 @@ sop_tnew <- function(data, tau=NULL, S, T_c, ipw=0, trans,
         data_h <- data[data$s1==h,]
         data_h$delta <- 1*(data_h$s2==j)
         if(ipw==0){
-            fit <- tryCatch(
-                coxph(Surv(t1,t2,delta,type="counting")~1, data=data_h),
-                error = function(e) e
-            )
-            if (inherits(fit, "error"))
-                browser()
+          fit <- coxph(Surv(t1,t2,delta,type="counting")~1, data=data_h,
+                       control = coxph.control(timefix = FALSE))
         } else {
           fit <- coxph(Surv(t1,t2,delta,type="counting")~1,
-                       weight=weightVL, data=data_h)
+                       weight=weightVL, data=data_h,
+                       control = coxph.control(timefix = FALSE))
         }
         A <- basehaz(fit, centered=FALSE)
         A_t<-stepfun(A$time,c(0,A$hazard))
@@ -198,34 +197,38 @@ sop_tnew <- function(data, tau=NULL, S, T_c, ipw=0, trans,
     }else{
       out <- p_n
     }
-
+   
     return(out)
 }
 
 se_bootnew <- function(data, times=1, j, nboot=100,
-                       tau = NULL, S = 1:3, T_c = 1:2, ipw = 0, trans){
-    id <- sort(unique(data$id))
-    theta <- NULL
-    for (b in 1:nboot) {
-        bdat <- NULL
-        bid <- sample(id, replace=TRUE)
-        for(i in 1:length(bid)){
-            bdat <- rbind(bdat, data[data$id==bid[i],])
-        }
-        res <- sop_tnew(data = bdat, tau=tau, S = S, T_c = T_c, ipw= ipw,
-                        trans = trans, times= times)
-        theta <- rbind(theta, res)
+                    tau = NULL, S = 1:3, T_c = 1:2, ipw = 0, trans){
+  id <- sort(unique(data$id))
+  theta <- NULL
+  for(b in 1:nboot){
+    bdat <- NULL
+    bid <- sample(id, replace=TRUE)
+    for(i in 1:length(bid)){
+      bdat <- rbind(bdat, data[data$id==bid[i],])
     }
-    dat <- lapply(S, function(i){
-        idx <- seq(i, nrow(theta), by = 3)
-        theta[idx,]
-    })
-    b.se <- lapply(dat, function(data){
-        apply(data, 2, sd)
-    })
-    b.se <- do.call(rbind, b.se)
-    b.se <- b.se[,-1]
-    return(b.se)
+    if (all(bdat$s1 == bdat$s2)){
+      browser()
+      next
+    }
+      res <- sop_tnew(data = bdat, tau=tau, S = S, T_c = T_c, ipw= ipw,
+                      trans = trans, times= times)
+      theta <- rbind(theta, res)
+  }
+  dat <- lapply(S, function(i){
+    idx <- seq(i, nrow(theta), by = 3)
+    theta[idx,]
+  })
+  b.se <- lapply(dat, function(data){
+   apply(data, 2, sd)
+  })
+  b.se <- do.call(rbind, b.se)
+  b.se <- b.se[,-1]
+  return(b.se)
 }
 
 
@@ -234,7 +237,7 @@ se_bootnew <- function(data, times=1, j, nboot=100,
 # P_j(t) = E[I{X(t)=j}]
 true.P_j <- function(n=10000, a12=0.5, a13=1, a21=0.25 ,a23=0.5,
                      p12=1, p13=1, p21=1, p23=1,
-                     p.Z=0.4, b.Z=0.5, j=2, times) {
+                     p.Z=0.4, b.Z=0.5, j=2, times, scale0 = 0.01) {
     # In this function when p12=p13=p21=p23=1 we have a homogeneous process
     # (i.e. time-constant intensities)
     if(p12==1 & p13==1 & p21==1 & p23==1){
@@ -258,8 +261,8 @@ true.P_j <- function(n=10000, a12=0.5, a13=1, a21=0.25 ,a23=0.5,
       for(i in 1:n){
         #Simulate covariate that is associated with X(t), right censoring, and missingness
         Z <- rbinom(n=1, size=1, prob=p.Z)
-        t12 <- rweibull(1, shape=p12, scale=(1/(a12*exp(b.Z*Z))))
-        t13 <- rweibull(1, shape=p13, scale=(1/(a13*exp(b.Z*Z))))
+        t12 <- rweibull(1, shape=p12, scale=(scale0/(a12*exp(b.Z*Z))))
+        t13 <- rweibull(1, shape=p13, scale=(scale0/(a13*exp(b.Z*Z))))
         stop <- 1*(t13 < t12) #Stop if death first
         x1 <- min(c(t12, t13)) # Exit time from state 1
         if (stop==0){
@@ -270,9 +273,9 @@ true.P_j <- function(n=10000, a12=0.5, a13=1, a21=0.25 ,a23=0.5,
           while (stop==0){
             if(s2[length(s2)]==2){
               t23 <- rtrunc(1, spec="weibull", a=t2[length(t2)], b=Inf,
-                            shape=p23, scale=(1/(a23*exp(b.Z*Z))))
+                            shape=p23, scale=(scale0/(a23*exp(b.Z*Z))))
               t21 <- rtrunc(1, spec="weibull", a=t2[length(t2)], b=Inf,
-                            shape=p21, scale=(1/(a21*exp(b.Z*Z))))
+                            shape=p21, scale=(scale0/(a21*exp(b.Z*Z))))
 
               stop <- 1*(t23 < t21) #Stop if death first
               x2 <- min(c(t21, t23)) # Exit time from state 2
@@ -283,9 +286,9 @@ true.P_j <- function(n=10000, a12=0.5, a13=1, a21=0.25 ,a23=0.5,
               s2 <- c(s2, ifelse(t21 <= t23, 1, 3))
             } else {
               t12 <- rtrunc(1, spec="weibull", a=t2[length(t2)], b=Inf,
-                            shape=p12, scale=(1/(a12*exp(b.Z*Z))))
+                            shape=p12, scale=(scale0/(a12*exp(b.Z*Z))))
               t13 <- rtrunc(1, spec="weibull", a=t2[length(t2)], b=Inf,
-                            shape=p13, scale=(1/(a13*exp(b.Z*Z))))
+                            shape=p13, scale=(scale0/(a13*exp(b.Z*Z))))
 
               stop <- 1*(t13 < t12) #Stop if death first
               x1 <- min(c(t12, t13)) # Exit time from state 1
@@ -333,8 +336,8 @@ run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
                      p.Z=0.4, b.Z=0.5, gamma_0=-1, gamma_1=1, nboot=100,
                     trace=TRUE,  tau=NULL, S, T_c , ipw, trans, P_0 ){
   set.seed(seed)
-  out <- foreach(i = seq_len(N)) %do%
-    ({
+  out <- foreach(i = seq_len(N)) %dopar%
+    ({ 
     dat <- simulate(n=n, a12=a12, a13=a13, a21=a21, a23=a23,
                          p12=p12, p13=p13, p21=p21, p23=p23, c.rate=c.rate,
                          b.Z.cens=b.Z.cens, p.Z=p.Z, b.Z=b.Z,
@@ -343,7 +346,6 @@ run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
                     trans = trans, times= times)
     se <- se_bootnew(dat, times = times, nboot = nboot, tau = tau, S = S,
                      T_c = T_c, ipw = ipw, trans = trans, j = state)
-    return(1)
     se_n <- se[, state]
     P_n <- res[, state +1]
     ecp <- 1*(P_n - 1.96*se_n <= P_0 &
@@ -351,7 +353,6 @@ run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
 
     list(P_n = P_n, se_n = se_n, ecp = ecp)
     })
-  return(1)
   P_n <- do.call(rbind, lapply(out, function(a) a$P_n))
   se_n <- do.call(rbind, lapply(out, function(a) a$se_n))
   ecp <- do.call(rbind, lapply(out, function(a) a$ecp))
@@ -366,18 +367,17 @@ run.sim <- function(N=1000, n=1000, times = c(0.5, 1, 1.5), state=2,
   rownames(res) <- times
   return(res)
 }
-
-## Censoring adjusted estimator
+#Censoring adjusted estimator
 set.seed(12345)
 tmatrix <- trans(state_names = c("health", "illness", "death"),from = c(1, 1, 1, 2, 2),
                      to = c(2, 2, 3, 3, 1))
-P_0 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
-                 a12=0.5, a13=1, a21=0.75 ,a23=0.5,
-                 p12=1, p13=1, p21=1, p23=1)
+# P_0 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
+#                  a12=0.5, a13=1, a21=0.75 ,a23=0.5,
+#                  p12=1, p13=1, p21=1, p23=1)
 
 # res_200 <- run.sim(N=1000, n=200, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
 #         T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_0)
-#
+# 
 # res_400 <- run.sim(N=1000, n=400, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
 #         T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_0)
 # res_800 <- run.sim(N=1000, n=800, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
@@ -390,7 +390,7 @@ P_0 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
 # event_rate <- function(N, n, times = c(0.5, 1, 1.5), j=2,
 #                   a12=0.5, a13=1, a21=0.75 ,a23=0.5,
 #                   p12=0.75, p13=1, p21=1, p23=1, from = 1, to = 2){
-#
+#   
 #   res <- replicate(N, { sapply(times, function(t){
 #     tmp = simulate(n = n, p12 = p12)
 #     sum(tmp$s1 == from & tmp$s2 == to & tmp$t2 <= t)
@@ -404,32 +404,38 @@ P_0 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
 
 P_1 <- true.P_j( n=10000, times = c(0.5, 1, 1.5), j=2,
                  a12=0.5, a13=1, a21=0.75 ,a23=0.5,
-                 p12=0.5, p13=1, p21=1, p23=1)
+                 p12=0.55, p13=1, p21=1, p23=1, scale0 = 1)
 
-# try200 <- run.sim(N=100, n=200, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
-#                   T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12=0.5)
 
-nonhomo_200 <- run.sim(N=1000, n=200, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
-                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1,  p12=0.5)
-nonhomo_400 <- run.sim(N=1000, n=400, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
-                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12 = 0.5)
-nonhomo_800 <- run.sim(N=1000, n=800, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
-                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12=0.5)
+# try200 <- run.sim(N=10, n=200, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
+#                   T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12=0.55)
 
+nonhomo_200 <- run.sim(N=500, n=200, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
+                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1,  p12=0.55)
 saveRDS(nonhomo_200, file = "nonhomo_200.rds")
+
+nonhomo_400 <- run.sim(N=500, n=400, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
+                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12 = 0.55)
 saveRDS(nonhomo_400, file = "nonhomo_400.rds")
+
+nonhomo_800 <- run.sim(N=400, n=800, times = c(0.5, 1, 1.5), trace=FALSE,  tau=NULL, S = 1:3,
+                       T_c = 1:2, ipw=0, trans = tmatrix, P_0 = P_1, p12=0.55)
+
 saveRDS(nonhomo_800, file = "nonhomo_800.rds")
 
 
 ###########
 ##### Statistics
-d1 <- simulate(n = 200,  p12=0.5)
-d1 <- simulate(n = 200, c.rate = 0.2)
-timepoint <- seq(0, 2, 0.1)
-state_num <- function(time, state, dat) {
-  nrow(subset(dat, s1 == state & t1 <= time & time < t2))
-}
-state1 <- sapply(timepoint, state_num, state = 1, dat = d1)
-state2 <- sapply(timepoint, state_num, state = 2, dat = d1)
-res <- data.frame(timepoint, state1, state2)
-#res$proportion <- percent(res$state1/res$state2)
+# d1 <- simulate(n = 200,  p12=0.5, p23 = 0.7)
+# d2 <- simulate(n = 200, p12 = 0.35)
+# stats <- function(data, timepoint = seq(0, 10, 1)){
+#   state_num <- function(time, state, dat) {
+#     nrow(subset(dat, s1 == state & t1 <= time & time < t2))
+#   }
+#   state1 <- sapply(timepoint, state_num, state = 1, dat = data)
+#   state2 <- sapply(timepoint, state_num, state = 2, dat = data)
+#   res <- data.frame(timepoint, state1, state2)
+#   res
+# }
+# 
+# res$proportion <- percent(res$state1/res$state2)
