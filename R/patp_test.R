@@ -485,7 +485,6 @@ patp_test <- function(data, tmat,cid = "cid", id = "id", group = "group", h = 1,
   D_hat=(Pt[[1]](tms) - Pt[[2]](tms))
 
   ### KS result p-value = 1 ####
-  # tmat1 <- matrix(c(NA,1,2,3, NA, 4, NA, NA, NA), nrow = 3, byrow = TRUE)
 
   patp_test_b <- function(data, tmat, h, j, group, times, D_hat,
                           Wt, n, weighted, LMAJ = FALSE){
@@ -508,12 +507,12 @@ patp_test <- function(data, tmat,cid = "cid", id = "id", group = "group", h = 1,
     return(sqrt(n)*Wt*(D_boot-D_hat))
   }
 
-  diff_boot <- function ( data, B = 5, id,  verbose = 0, 
+  diff_boot <- function ( data, B, id,  verbose = 0, 
                           tmat, group, h=h, j=j,
                           times, D_hat, Wt,
                           n, weighted, LMAJ=FALSE) 
-  {
-    ids <- unique(data$id)
+  { 
+    ids <- unique(data[[id]])
     n <- length(ids)
     th <- patp_test_b(data, tmat=tmat, group=group, h=h, j=j,
                       times=tms, D_hat=D_hat, Wt=Wt,
@@ -526,7 +525,7 @@ patp_test <- function(data, tmat,cid = "cid", id = "id", group = "group", h = 1,
       }
       bootdata <- NULL
       bids <- sample(ids, replace = TRUE)
-      bidxs <- unlist(sapply(bids, function(x) which(x == data$id)))
+      bidxs <- unlist(sapply(bids, function(x) which(x == data[[id]])))
       bootdata <- data[bidxs, ]
       if (verbose > 0) {
         print(date())
@@ -558,7 +557,8 @@ patp_test <- function(data, tmat,cid = "cid", id = "id", group = "group", h = 1,
 ## Example
 tmatrix <- trans(state_names = c("health", "illness", "death"),from = c(1, 1, 1, 2, 2),
                  to = c(2, 2, 3, 3, 1))
-tmp <- simulate(100)
+set.seed(0212)
+tmp <- simulate(300)
 tmp <- reshape_long(tmp, tmatrix)
-tmp <- sim_group(tmp, cid = 3)
+tmp <- sim_group(tmp, cid = 5)
 KS_res <- patp_test(tmp, tmatrix, cid = "cid", id = "id", group = "group", h = 1, j = 2, B = 1000)
